@@ -27,7 +27,7 @@ async function fetchWeather(city) {
             return;
         }
 
-        const { latitude, longitude, name } = geoData.results[0];
+        const { latitude, longitude, name, timezone } = geoData.results[0];
 
         const weatherRes = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode`
@@ -36,6 +36,7 @@ async function fetchWeather(city) {
         const weatherData = await weatherRes.json();
 
         displayWeather(name, weatherData);
+        getLocalTime(timezone);
 
     } catch (err) {
         showError("Network error");
@@ -107,4 +108,28 @@ function toggleSkeleton(show) {
 }
 function showError(msg) {
     document.getElementById("error").textContent = msg;
+}
+function getLocalTime(timezone) {
+
+    if (!timezone) {
+        document.getElementById("time").textContent =
+            new Date().toLocaleString();
+        return;
+    }
+
+    $.getJSON(`https://worldtimeapi.org/api/timezone/${timezone}`)
+
+        .done(function(data) {
+            document.getElementById("time").textContent =
+                data.datetime;
+        })
+
+        .fail(function() {
+            document.getElementById("time").textContent =
+                new Date().toLocaleString();
+        })
+
+        .always(function() {
+            console.log("Time request finished:", new Date());
+        });
 }
