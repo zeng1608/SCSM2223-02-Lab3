@@ -1,50 +1,81 @@
 const btn = document.getElementById("searchBtn");
-const input = document.getElementById("cityInput");
+const cityInput = document.getElementById("cityInput");
 
-btn.addEventListener("click", () => {
-    const city = input.value.trim();
+let debounceTimer;
 
-    if (!city) {
-        showError("Please enter a city");
+cityInput.addEventListener("input", ()=>{
+    const city = cityInput.value.trim();
+
+    if ( city.length<2){
+        showError("Please enter at least 2 characters");
+        clearTimeout(debounceTimer);
         return;
     }
+    showError("")
 
-    fetchWeather(city);
+    clearTimeout(debounceTimer);
+    debounceTimer=setTimeout(()=>{
+        fetchWeather(city);
+    },500);
 });
+
 async function fetchWeather(city) {
     try {
         showError("");
         toggleSkeleton(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-        const geoRes = await fetch(
-            `https://geocoding-api.open-meteo.com/v1/search?name=${city}`
-        );
+    const geoRes = await fetch(
+`https://geocoding-api.open-meteo.com/v1/search?name=${city}`,
+{ signal: controller.signal }
+);
 
-        const geoData = await geoRes.json();
+clearTimeout(timeoutId);
+if (!geoRes.ok) {
+    throw new Error("Geocoding HTTP error: " + geoRes.status);
+}
 
-        if (!geoData.results || geoData.results.length === 0) {
-            showError("City not found");
-            return;
-        }
+const geoData = await geoRes.json();
 
-        const { latitude, longitude, name, timezone } = geoData.results[0];
+if (!geoData.results || geoData.results.length === 0) {
+    showError("City not found");
+    toggleSkeleton(false);
+    return;
+}
 
-        const weatherRes = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode`
-        );
+const { latitude, longitude, name, timezone } = geoData.results[0];
 
-        const weatherData = await weatherRes.json();
+const controller2 = new AbortController();
+const timeoutId2 = setTimeout(() => controller2.abort(), 10000);
 
-        displayWeather(name, weatherData);
-        getLocalTime(timezone);
+const weatherRes = await fetch(
+`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode`,
+{ signal: controller2.signal}
+);
 
-    } catch (err) {
-        showError("Network error");
+clearTimeout(timeoutId2);
+
+if (!weatherRes.ok) {
+    throw new Error("Weather HTTP error: " + weatherRes.status);
+}
+
+const weatherData = await weatherRes.json();
+
+displayWeather(name, weatherData);
+getLocalTime(timezone);
+
+}catch (err) {
+    if (err.name === "AbortError") {
+        showError("Request timeout (10s)");
+    } else {
+        showError(err.message);
     }
+    toggleSkeleton(false);
+}
 }
 function displayWeather(city, data) {
     toggleSkeleton(false);
-
     document.getElementById("cityName").textContent =city;
     document.getElementById("temp").textContent =
         data.current_weather.temperature + "°C";
@@ -52,7 +83,8 @@ function displayWeather(city, data) {
     document.getElementById("desc").textContent =
         weatherCodeMap[data.current_weather.weathercode]?.text || "Unknown";
 
-    document.getElementById("humidity").textContent ="Loaded";
+    document.getElementById("humidity").textContent =
+    "Humidity data available";
     document.getElementById("wind").textContent =
         data.current_weather.windspeed +" km/h";
 
@@ -66,9 +98,12 @@ function displayWeather(city, data) {
         const code = data.daily.weathercode[i];
 
         div.innerHTML = `
-            <div>${day}</div>
-            <div>${weatherCodeMap[code]?.icon ||""}</div>
-            <div>${data.daily.temperature_2m_max[i]} / ${data.daily.temperature_2m_min[i]}</div>
+        <div class="day-name">${day}</div>
+        <div class="icon-box">${weatherCodeMap[code]?.icon || ""}</div>
+        <div class="temp-line">
+        ${data.daily.temperature_2m_max[i]}° / 
+        ${data.daily.temperature_2m_min[i]}°
+        </div>
         `;
 
         row.appendChild(div);
@@ -121,7 +156,7 @@ function getLocalTime(timezone) {
 
         .done(function(data) {
             document.getElementById("time").textContent =
-                data.datetime;
+            new Date(data.datetime).toLocaleString()
         })
 
         .fail(function() {
