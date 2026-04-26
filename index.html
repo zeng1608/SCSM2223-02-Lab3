@@ -10,64 +10,80 @@
 <div class="dashboard">
 
     <div class="search-bar">
-        <input type="text" placeholder="Enter city name...">
-        <button>Search</button>
+        <input id="cityInput" type="text" placeholder="Enter city name...">
+        <button id="searchBtn">Search</button>
     </div>
+    <div id="error" class="error-message"></div>
 
-    <div class="current-weather">
-        <h2 class="skeleton">City Name</h2>
-        <p class="skeleton">Temperature</p>
-        <p class="skeleton">Weather Description</p>
-        <p class="skeleton">Humidity</p>
-        <p class="skeleton">Wind Speed</p>
-        <p class="skeleton">Local Time</p>
+    <div class="field">
+        <div class="label">City</div>
+        <div id="cityName" class="value skeleton"></div>
     </div>
-
-    <div class="forecast">
+    <div class="field">
+        <div class="label">Temperature</div>
+        <div id="temp" class="value skeleton"></div>
+    </div>
+    <div class="field">
+        <div class="label">Description</div>
+        <div id="desc" class="value skeleton"></div>
+    </div>
+    <div class="field">
+        <div class="label">Humidity</div>
+        <div id="humidity" class="value skeleton"></div>
+    </div>
+    <div class="field">
+        <div class="label">Wind Speed</div>
+        <div id="wind" class="value skeleton"></div>
+    </div>
+    <div class="field">
+        <div class="label">Local Time</div>
+        <div id="time" class="value skeleton"></div>
+    </div>
+    <div id="forecast" class="forecast">
         <div class="forecast-card">
             <p class="skeleton text-line">Monday</p>
             <p class="skeleton icon-box">🌦️</p>
-            <p class="skeleton text-line">33°/25°</p>
+            <p class="skeleton text-line"> High/ Low</p>
         </div>
 
         <div class="forecast-card">
             <p class="skeleton text-line">Tuesday</p>
             <p class="skeleton icon-box">🌦️</p>
-            <p class="skeleton text-line">34°/25°</p>
+            <p class="skeleton text-line"> High / Low</p>
         </div>
 
         <div class="forecast-card">
             <p class="skeleton text-line">Wednesday</p>
             <p class="skeleton icon-box">☁️</p>
-            <p class="skeleton text-line">33°/25°</p>
+            <p class="skeleton text-line"> High / Low</p>
         </div>
 
         <div class="forecast-card">
             <p class="skeleton text-line">Thursday</p>
             <p class="skeleton icon-box">🌧️</p>
-            <p class="skeleton text-line">32°/26°</p>
+            <p class="skeleton text-line"> High / Low</p>
         </div>
 
         <div class="forecast-card">
             <p class="skeleton text-line">Friday</p>
             <p class="skeleton icon-box">🌤️</p>
-            <p class="skeleton text-line">31°/25°</p>
+            <p class="skeleton text-line"> High / Low</p>
         </div>
 
         <div class="forecast-card">
             <p class="skeleton text-line">Saturday</p>
             <p class="skeleton icon-box">🌦️</p>
-            <p class="skeleton text-line">32°/25°</p>
+            <p class="skeleton text-line"> High / Low</p>
         </div>
 
         <div class="forecast-card">
             <p class="skeleton text-line">Sunday</p>
             <p class="skeleton icon-box">🌧️</p>
-            <p class="skeleton text-line">31° /25°</p>
+            <p class="skeleton text-line"> High / Low</p>
         </div>
     </div>
 
 </div>
-
+<script src="app.js"></script>
 </body>
 </html>
